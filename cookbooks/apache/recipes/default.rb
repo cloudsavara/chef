@@ -8,6 +8,7 @@ if node["platform"] == "ubuntu"
 	execute "apt-get update -y" do
 	end
 end
+
 package "apache2" do
 	package_name node["apache"]["package"]
 end
@@ -22,7 +23,7 @@ node["apache"]["sites"].each do |sitename, data|
 
 if node["platform"] == "ubuntu"
 	template_location = "/etc/apache2/sites-enabled/#{sitename}.conf"
-elseif node["platform"] == "centos"
+elsif node["platform"] == "centos"
 	template_location = "/etc/httpd/conf.d/#{sitename}.conf"
 end
 
@@ -36,12 +37,14 @@ template template_location do
 	)
 	notifies :restart, "service[httpd]"
 end
+
 template "/content/sites/#{sitename}/index.html" do
 	source "index.html.erb"
 	mode "0644"
 	variables(
 		:site_title => data["site_title"],
-		:comingsoon => "coming Soon!"
+		:comingsoon => "coming Soon!",
+		:author_name => node["author"]["name"]
 	)
 end
 end
